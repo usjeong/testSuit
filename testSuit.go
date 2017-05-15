@@ -27,7 +27,7 @@ type TestSuit struct {
 	Data        url.Values
 	Buffer      io.Reader
 	ContentType string
-	r           *gin.Engine
+	Router      *gin.Engine
 }
 
 // Do start test
@@ -52,8 +52,8 @@ func (ts *TestSuit) Do(handler gin.HandlerFunc) (*httptest.ResponseRecorder, *ht
 
 			respGet := httptest.NewRecorder()
 			respPost := httptest.NewRecorder()
-			ts.r.ServeHTTP(respGet, reqGet)
-			ts.r.ServeHTTP(respPost, reqPost)
+			ts.Router.ServeHTTP(respGet, reqGet)
+			ts.Router.ServeHTTP(respPost, reqPost)
 
 			return respGet, respPost
 		}
@@ -85,7 +85,7 @@ func (ts *TestSuit) Do(handler gin.HandlerFunc) (*httptest.ResponseRecorder, *ht
 	}
 
 	resp := httptest.NewRecorder()
-	ts.r.ServeHTTP(resp, req)
+	ts.Router.ServeHTTP(resp, req)
 	return resp, nil
 }
 
