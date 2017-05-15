@@ -20,7 +20,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// TestSuit http api 테스트 형식
+// TestSuit http request test form
 type TestSuit struct {
 	Method      string
 	URL         string
@@ -30,7 +30,7 @@ type TestSuit struct {
 	r           *gin.Engine
 }
 
-// Do 테스트 실행
+// Do start test
 func (ts *TestSuit) Do(handler gin.HandlerFunc) (*httptest.ResponseRecorder, *httptest.ResponseRecorder) {
 	var req *http.Request
 
@@ -89,14 +89,16 @@ func (ts *TestSuit) Do(handler gin.HandlerFunc) (*httptest.ResponseRecorder, *ht
 	return resp, nil
 }
 
-func getGinEngine() *gin.Engine {
+// GetGinEngine create gin.Engine with test mode
+func GetGinEngine() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 
 	return r
 }
 
-func genImage(ext string, width, height int) (*bytes.Buffer, string, error) {
+// GenImage generate randomize image
+func GenImage(ext string, width, height int) (*bytes.Buffer, string, error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
