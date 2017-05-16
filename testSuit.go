@@ -27,11 +27,12 @@ type TestSuit struct {
 	Data        url.Values
 	Buffer      io.Reader
 	ContentType string
+	Header      map[string]string
 	Router      *gin.Engine
 }
 
 // Do start test
-func (ts *TestSuit) Do(handler gin.HandlerFunc) (*httptest.ResponseRecorder, *httptest.ResponseRecorder) {
+func (ts *TestSuit) Do() (*httptest.ResponseRecorder, *httptest.ResponseRecorder) {
 	var req *http.Request
 
 	if ts.ContentType == "" {
@@ -60,6 +61,10 @@ func (ts *TestSuit) Do(handler gin.HandlerFunc) (*httptest.ResponseRecorder, *ht
 
 		req, _ = http.NewRequest(ts.Method, ts.URL, nil)
 		req.Header.Add("Content-Type", ts.ContentType)
+
+		for k, v := range ts.Header {
+			req.Header.Add(k, v)
+		}
 
 	} else {
 		if ts.Data != nil {
