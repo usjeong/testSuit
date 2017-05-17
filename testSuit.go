@@ -27,71 +27,59 @@ type TestSuit struct {
 	Data        url.Values
 	Buffer      io.Reader
 	ContentType string
+	request     *http.Request
+	response    *httptest.ResponseRecorder
 	Header      map[string]string
 	Router      *gin.Engine
 }
 
 // Do start test
-func (ts *TestSuit) Do() (*httptest.ResponseRecorder, *httptest.ResponseRecorder) {
+func (ts *TestSuit) Do() *httptest.ResponseRecorder {
 	var req *http.Request
 
 	if ts.ContentType == "" {
 		ts.ContentType = "application/x-www-form-urlencoded"
 	}
 
-	if ts.Method == "ALL" {
-		if ts.Data != nil {
-			encodedData := ts.Data.Encode()
-
-			reqGet, _ := http.NewRequest("GET", ts.URL, nil)
-			reqGet.Header.Add("Content-Type", ts.ContentType)
-			reqGet.URL.RawQuery = encodedData
-
-			reqPost, _ := http.NewRequest("POST", ts.URL,
-				strings.NewReader(encodedData))
-			reqPost.Header.Add("Content-Type", ts.ContentType)
-
-			respGet := httptest.NewRecorder()
-			respPost := httptest.NewRecorder()
-			ts.Router.ServeHTTP(respGet, reqGet)
-			ts.Router.ServeHTTP(respPost, reqPost)
-
-			return respGet, respPost
-		}
-
-		req, _ = http.NewRequest(ts.Method, ts.URL, nil)
-		req.Header.Add("Content-Type", ts.ContentType)
+	addHeader := func() {
+		ts.request.Header.Add("Content-Type", ts.ContentType)
 
 		for k, v := range ts.Header {
-			req.Header.Add(k, v)
+			ts.request.Header.Add(k, v)
 		}
 
-	} else {
-		if ts.Data != nil {
-
-			switch ts.Method {
-			case "GET":
-				req, _ = http.NewRequest(ts.Method, ts.URL, nil)
-				req.URL.RawQuery = ts.Data.Encode()
-				req.Header.Add("Content-Type", ts.ContentType)
-			case "POST":
-				req, _ = http.NewRequest(ts.Method, ts.URL,
-					strings.NewReader(ts.Data.Encode()))
-				req.Header.Add("Content-Type", ts.ContentType)
-			}
-
-		} else if ts.Buffer != nil {
-			req, _ = http.NewRequest(ts.Method, ts.URL, ts.Buffer)
-			req.Header.Add("Content-Type", ts.ContentType)
-		} else {
-			req, _ = http.NewRequest(ts.Method, ts.URL, nil)
-			req.Header.Add("Content-Type", ts.ContentType)
-		}
 	}
 
-	resp := httptest.NewRecorder()
-	ts.Router.ServeHTTP(resp, req)
-	return resp, nil
+	if ts.Data != nil {
+		encodedData := ts.Data.Encode()
+
+		switch ts.Method {
+		case "ALL":
+			ts.request, _ = http.NewRequest("POST", ts.URL,
+				strings.NewReader(encodedData))
+			addHeader()
+
+		case "GET":
+			ts.request, _ = http.NewRequest(ts.Method, ts.URL, nil)
+			ts.request.URL.RawQuery = ts.Data.Encode()
+			addHeader()
+		case "POST":
+			ts.request, _ = http.NewRequest(ts.Method, ts.URL,
+				strings.NewReader(ts.Data.Encode()))
+			addHeader()
+		}
+
+	} else if ts.Buffer != nil {
+		ts.request, _ = http.NewRequest(ts.Method, ts.URL, ts.Buffer)
+		addHeader()
+	} else {
+		ts.request, _ = http.NewRequest(ts.Method, ts.URL, nil)
+		addHeader()
+	}
+
+	ts.response = httptest.NewRecorder()
+	ts.Router.ServeHTTP(ts.response, ts.request)
+	return ts.response
 }
 
 // GetGinEngine create gin.Engine with test mode
