@@ -35,8 +35,6 @@ type TestSuit struct {
 
 // Do start test
 func (ts *TestSuit) Do() *httptest.ResponseRecorder {
-	var req *http.Request
-
 	if ts.ContentType == "" {
 		ts.ContentType = "application/x-www-form-urlencoded"
 	}
