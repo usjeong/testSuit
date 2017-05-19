@@ -33,10 +33,10 @@ func TestPing(*testing.T) {
 ## Other functions
 ```go
 // generate the random color image
-func GenImage(ext string, width, height int) (*bytes.Buffer, string, error)
+func GenImage(ext string, width, height int) (*bytes.Buffer, string, error) {}
 
 // return gin engine with test mode
-func GetGinEngine() *gin.Engine
+func GetGinEngine() *gin.Engine {}
 
 ```
 
