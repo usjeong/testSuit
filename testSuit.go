@@ -61,7 +61,7 @@ func (ts *TestSuit) Do() *httptest.ResponseRecorder {
 				strings.NewReader(ts.Data.Encode()))
 			addHeader()
 		default:
-			ts.request, _ = http.NewRequest(t.Method, ts.URL,
+			ts.request, _ = http.NewRequest(ts.Method, ts.URL,
 				strings.NewReader(encodedData))
 			addHeader()
 		}
