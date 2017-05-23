@@ -52,10 +52,6 @@ func (ts *TestSuit) Do() *httptest.ResponseRecorder {
 		encodedData := ts.Data.Encode()
 
 		switch ts.Method {
-		case "ALL":
-			ts.request, _ = http.NewRequest("POST", ts.URL,
-				strings.NewReader(encodedData))
-			addHeader()
 		case "GET":
 			ts.request, _ = http.NewRequest(ts.Method, ts.URL, nil)
 			ts.request.URL.RawQuery = ts.Data.Encode()
@@ -63,6 +59,10 @@ func (ts *TestSuit) Do() *httptest.ResponseRecorder {
 		case "POST":
 			ts.request, _ = http.NewRequest(ts.Method, ts.URL,
 				strings.NewReader(ts.Data.Encode()))
+			addHeader()
+		default:
+			ts.request, _ = http.NewRequest(t.Method, ts.URL,
+				strings.NewReader(encodedData))
 			addHeader()
 		}
 
